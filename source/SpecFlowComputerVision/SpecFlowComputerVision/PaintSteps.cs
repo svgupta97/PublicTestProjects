@@ -1,5 +1,10 @@
 ﻿using System;
+using System.Drawing;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Appium.Windows;
+using SpecFlowComputerVision.Framework;
 using TechTalk.SpecFlow;
 
 namespace SpecFlowComputerVision
@@ -8,6 +13,7 @@ namespace SpecFlowComputerVision
     public class PaintSteps
     {
         private PaintPomBase paintPomBase = null;
+        private FoundItem[] itemsFound;
 
         [BeforeScenario()]
         public void  LaunchApplication(TestContext context)
@@ -27,30 +33,16 @@ namespace SpecFlowComputerVision
             paintPomBase = new PaintPomBase();
         }
 
-        [Given(@"Draw Rectangle")]
-        public void GivenDrawRectangle()
-        {
-            Assert.IsTrue(true);
-        }
-
         [Given(@"I select brush")]
         public void GivenISelectBrush()
         {
-            paintPomBase.SetupBrushesPane();
+            //paintPomBase.SetupBrushesPane();
         }
 
-        [Given(@"I draw rectangle")]
-        [Then(@"I draw rectangle")]
-        public void ThenIDrawRectangle()
+        [Given(@"I draw a rectangle")]
+        public void GivenIDrawARectangle()
         {
             paintPomBase.DrawRectangle();
-        }
-
-        [Given(@"I draw a circle")]
-        [Then(@"I draw a circle")]
-        public void ThenIDrawACircle()
-        {
-            paintPomBase.DrawCircle();
         }
 
         [Given(@"I draw a traingle")]
@@ -58,6 +50,22 @@ namespace SpecFlowComputerVision
         {
             paintPomBase.DrawTriangle();
         }
+
+        [Then(@"image with (.*) sides is found")]
+        public void ThenImageWithSidesIsFound(int sideNum)
+        {
+            WindowsElement inkCanvas = paintPomBase.GetCanvas();
+
+            Screenshot screenShot = inkCanvas.GetScreenshot();
+            using (var memoryStream = new MemoryStream(screenShot.AsByteArray))
+            using (Bitmap bitmap = new Bitmap(memoryStream))
+            {
+                itemsFound = ImageObjectDetection.FindNSidedElement(bitmap, sideNum, false);
+                Console.WriteLine($"itemsFound= {itemsFound.Length}");
+                Assert.IsTrue(itemsFound.Length == 1);
+            };
+        }
+
 
 
 

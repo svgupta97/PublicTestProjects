@@ -5,6 +5,7 @@ using OpenQA.Selenium.Appium.Interactions;
 using OpenQA.Selenium.Appium.Windows;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Remote;
+using SpecFlowComputerVision.Framework;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -41,7 +42,6 @@ namespace SpecFlowComputerVision
                 opt.AddAdditionalCapability("app", Paint3DAppId);
                 opt.AddAdditionalCapability("deviceName", "WindowsPC");
                 session = new WindowsDriver<WindowsElement>(new Uri(WindowsApplicationDriverUrl), opt);
-                //Assert.IsNotNull(session);
 
                 // Set implicit timeout to 1.5 seconds to make element search to retry every 500 ms for at most three times
                 session.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(1.5);
@@ -102,147 +102,21 @@ namespace SpecFlowComputerVision
             catch { }
         }
 
-        public void SetupBrushesPane()
+        public WindowsElement GetCanvas()
         {
-            // Select the Brushes toolbox to have the Brushes Pane sidebar displayed
-            session.FindElementByAccessibilityId("Toolbox").FindElementByAccessibilityId("TopBar_ArtTools").Click();
-            brushesPane = session.FindElementByAccessibilityId("SidebarWrapper");
-
-            // Set eraser thickness to eraser width in pixel
-            brushesPane.FindElementByAccessibilityId("Eraser3d").Click();
-            if (brushesPane.FindElementByAccessibilityId("Thickness").Text != eraserWidth)
-            {
-                brushesPane.FindElementByAccessibilityId("Thickness").SendKeys(Keys.Control + "a" + Keys.Control);
-                brushesPane.FindElementByAccessibilityId("Thickness").SendKeys(eraserWidth + Keys.Enter);
-                Thread.Sleep(TimeSpan.FromSeconds(1));
-            }
-
-            // Ensure that the Pixel Pen is selected
-            brushesPane.FindElementByAccessibilityId("PixelPencil3d").Click();
-
-            // Locate the drawing surface
-            inkCanvas = session.FindElementByAccessibilityId("InteractorFocusWrapper");
-
-            // Locate the Undo button
-            undoButton = session.FindElementByAccessibilityId("UndoIcon");
-            //Assert.IsTrue(undoButton.Displayed);
-            //Assert.IsFalse(undoButton.Enabled);
-        }
-
-        public void DrawCircle()
-        {
-            // Draw a circle with radius 300 and 40 (x, y) points
-            const int radius = 300;
-            const int points = 40;
-
-            // Select the Brushes toolbox to have the Brushes Pane sidebar displayed and ensure that Marker is selected
-            session.FindElementByAccessibilityId("Toolbox").FindElementByAccessibilityId("TopBar_ArtTools").Click();
-            session.FindElementByAccessibilityId("SidebarWrapper").FindElementByAccessibilityId("Marker3d").Click();
-
-            // Locate the drawing surface
             WindowsElement inkCanvas = session.FindElementByAccessibilityId("InteractorFocusWrapper");
 
-            // Draw the circle with a single touch actions
-            OpenQA.Selenium.Appium.Interactions.PointerInputDevice touchContact = new OpenQA.Selenium.Appium.Interactions.PointerInputDevice(PointerKind.Touch);
-            ActionSequence touchSequence = new ActionSequence(touchContact, 0);
-            touchSequence.AddAction(touchContact.CreatePointerMove(inkCanvas, 0, -radius, TimeSpan.Zero));
-            touchSequence.AddAction(touchContact.CreatePointerDown(PointerButton.TouchContact));
-            for (double angle = 0; angle <= 2 * Math.PI; angle += 2 * Math.PI / points)
-            {
-                touchSequence.AddAction(touchContact.CreatePointerMove(inkCanvas, (int)(Math.Sin(angle) * radius), -(int)(Math.Cos(angle) * radius), TimeSpan.Zero));
-            }
-            touchSequence.AddAction(touchContact.CreatePointerUp(PointerButton.TouchContact));
-            session.PerformActions(new List<ActionSequence> { touchSequence });
-
-            // Verify that the drawing operations took place
-            WindowsElement undoButton = session.FindElementByAccessibilityId("UndoIcon");
-            //Assert.IsTrue(undoButton.Displayed);
-            //Assert.IsTrue(undoButton.Enabled);
-        }
-
-        public void DrawRectangle()
-        {
-            OpenQA.Selenium.Appium.Interactions.PointerInputDevice penDevice = new OpenQA.Selenium.Appium.Interactions.PointerInputDevice(PointerKind.Pen);
-
-            // Draw rectangle ABCD (consisting of AB, BC, CD, and DA lines)
-            ActionSequence sequence = new ActionSequence(penDevice, 0);
-            sequence.AddAction(penDevice.CreatePointerMove(inkCanvas, A.X, A.Y, TimeSpan.Zero));
-            sequence.AddAction(penDevice.CreatePointerDown(PointerButton.PenContact));
-            sequence.AddAction(penDevice.CreatePointerMove(inkCanvas, B.X, B.Y, TimeSpan.Zero));
-            sequence.AddAction(penDevice.CreatePointerMove(inkCanvas, C.X, C.Y, TimeSpan.Zero));
-            sequence.AddAction(penDevice.CreatePointerMove(inkCanvas, D.X, D.Y, TimeSpan.Zero));
-            sequence.AddAction(penDevice.CreatePointerMove(inkCanvas, A.X, A.Y, TimeSpan.Zero));
-            sequence.AddAction(penDevice.CreatePointerUp(PointerButton.PenContact));
-            session.PerformActions(new List<ActionSequence> { sequence });
-
-            // Fill the rectangle ABCD at the middle of the crosshair position (Point E)
-            brushesPane.FindElementByAccessibilityId("FillBucket").Click();
-
-            ActionSequence fillSequence = new ActionSequence(penDevice, 0);
-            fillSequence.AddAction(penDevice.CreatePointerMove(inkCanvas, E.X, E.Y, TimeSpan.Zero));
-            fillSequence.AddAction(penDevice.CreatePointerDown(PointerButton.PenContact));
-            fillSequence.AddAction(penDevice.CreatePointerUp(PointerButton.PenContact));
-            session.PerformActions(new List<ActionSequence> { fillSequence });
-
-            // Erase by pressing PenEraser button along Point E X-Axis and Y-Axis to make the crosshair
-            ActionSequence eraseSequence = new ActionSequence(penDevice, 0);
-            eraseSequence.AddAction(penDevice.CreatePointerMove(inkCanvas, A.X - 5, E.Y, TimeSpan.Zero));
-            eraseSequence.AddAction(penDevice.CreatePointerDown(PointerButton.PenEraser));
-            eraseSequence.AddAction(penDevice.CreatePointerMove(inkCanvas, B.X + 5, E.Y, TimeSpan.FromSeconds(.5)));
-            eraseSequence.AddAction(penDevice.CreatePointerUp(PointerButton.PenEraser));
-            eraseSequence.AddAction(penDevice.CreatePointerMove(inkCanvas, E.X, C.Y, TimeSpan.Zero));
-            eraseSequence.AddAction(penDevice.CreatePointerDown(PointerButton.PenEraser));
-            eraseSequence.AddAction(penDevice.CreatePointerMove(inkCanvas, E.X, B.Y, TimeSpan.FromSeconds(.5)));
-            eraseSequence.AddAction(penDevice.CreatePointerUp(PointerButton.PenEraser));
-            session.PerformActions(new List<ActionSequence> { eraseSequence });
-
-            // Verify that the drawing operations took place
-            Assert.IsTrue(undoButton.Displayed);
-            Assert.IsTrue(undoButton.Enabled);
+            return inkCanvas;
         }
 
         public void DrawTriangle()
         {
+            ElementExtensions.DrawTriangle(session);
+        }
 
-            // Select the Brushes toolbox to have the Brushes Pane sidebar displayed and ensure that Marker is selected
-            session.FindElementByAccessibilityId("Toolbox").FindElementByAccessibilityId("TopBar_ArtTools").Click();
-            session.FindElementByAccessibilityId("SidebarWrapper").FindElementByAccessibilityId("Marker3d").Click();
-
-            // Locate the drawing surface
-            WindowsElement inkCanvas = session.FindElementByAccessibilityId("InteractorFocusWrapper");
-
-            TimeSpan howFast = TimeSpan.FromMilliseconds(300.0);
-            OpenQA.Selenium.Appium.Interactions.PointerInputDevice penDevice = new OpenQA.Selenium.Appium.Interactions.PointerInputDevice(PointerKind.Pen);
-            ActionSequence sequence = new ActionSequence(penDevice, 0);
-
-            var halfWidth = inkCanvas.Size.Width / 2;
-            var halfHeight = inkCanvas.Size.Height / 2;
-
-            // left base 
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth, halfHeight, TimeSpan.Zero));
-            sequence.AddAction(penDevice.CreatePointerDown(PointerButton.TouchContact));
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth - 500, halfHeight, howFast));
-            sequence.AddAction(penDevice.CreatePointerUp(PointerButton.PenContact));
-
-            // right base 
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth, halfHeight, TimeSpan.Zero));
-            sequence.AddAction(penDevice.CreatePointerDown(PointerButton.TouchContact));
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth + 500, halfHeight, howFast));
-            sequence.AddAction(penDevice.CreatePointerUp(PointerButton.PenContact));
-
-            // left top 
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth - 500, halfHeight, TimeSpan.Zero));
-            sequence.AddAction(penDevice.CreatePointerDown(PointerButton.TouchContact));
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth, halfHeight - 500, howFast));
-            sequence.AddAction(penDevice.CreatePointerUp(PointerButton.PenContact));
-
-            // right top 
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth + 500, halfHeight, TimeSpan.Zero));
-            sequence.AddAction(penDevice.CreatePointerDown(PointerButton.TouchContact));
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth, halfHeight - 500, howFast));
-            sequence.AddAction(penDevice.CreatePointerUp(PointerButton.PenContact));
-
-            session.PerformActions(new List<ActionSequence> { sequence });
+        public void DrawRectangle()
+        {
+            ElementExtensions.DrawRectangle(session);
         }
     }
 }
