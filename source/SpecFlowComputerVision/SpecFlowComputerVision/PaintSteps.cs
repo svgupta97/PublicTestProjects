@@ -33,12 +33,6 @@ namespace SpecFlowComputerVision
             paintPomBase = new PaintPomBase();
         }
 
-        [Given(@"I select brush")]
-        public void GivenISelectBrush()
-        {
-            //paintPomBase.SetupBrushesPane();
-        }
-
         [Given(@"I draw a rectangle")]
         public void GivenIDrawARectangle()
         {

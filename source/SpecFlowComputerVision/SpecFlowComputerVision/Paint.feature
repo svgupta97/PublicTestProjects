@@ -1,5 +1,7 @@
 ﻿Feature: Paint
-	Test Paint
+	In order to test computer vision functionality in Paint
+	As an end user
+	I want to drawn an image and find image using computer vision
 
 Scenario: Draw Triangle
 	Given I draw a traingle
