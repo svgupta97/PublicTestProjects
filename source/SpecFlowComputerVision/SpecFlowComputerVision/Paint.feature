@@ -3,8 +3,8 @@
 	As an end user
 	I want to drawn an image and find image using computer vision
 
-Scenario: Draw Triangle
-	Given I draw a traingle
+Scenario: Select Triangle
+	Given I select a traingle
 	Then image with 3 sides is found
 
 Scenario: Draw Rectangle

@@ -16,6 +16,7 @@ namespace SpecFlowComputerVision
     class PaintPomBase
     {
         // Note: append /wd/hub to the URL if you're directing the test at Appium
+        public static WinAppDriverInstance WinAppDriverInstance = null;
         protected const string WindowsApplicationDriverUrl = "http://127.0.0.1:4723";
         private const string Paint3DAppId = @"Microsoft.MSPaint_8wekyb3d8bbwe!Microsoft.MSPaint";
 
@@ -33,6 +34,13 @@ namespace SpecFlowComputerVision
 
         public PaintPomBase()
         {
+            // launch WinAppDriver 
+            if (WinAppDriverInstance == null)
+            {
+                WinAppDriverInstance = new WinAppDriverInstance();
+
+            }
+
             // Launch Paint 3D application if it is not yet launched
             if (session == null)
             {
@@ -59,6 +67,7 @@ namespace SpecFlowComputerVision
                 ClosePaint3D();
                 session.Quit();
                 session = null;
+                WinAppDriverInstance.Dispose();
             }
         }
 
@@ -109,14 +118,15 @@ namespace SpecFlowComputerVision
             return inkCanvas;
         }
 
-        public void DrawTriangle()
+        public void SelectTriangle()
         {
-            ElementExtensions.DrawTriangle(session);
+            ElementExtensions.SelectTriangle(session);
         }
 
         public void DrawRectangle()
         {
             ElementExtensions.DrawRectangle(session);
         }
+
     }
 }

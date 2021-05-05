@@ -16,46 +16,73 @@ namespace SpecFlowComputerVision.Framework
     {
 
         public static void DrawTriangle(WindowsDriver<WindowsElement> session)
-        { 
+        {
+            OpenQA.Selenium.Appium.Interactions.PointerInputDevice penDevice = new OpenQA.Selenium.Appium.Interactions.PointerInputDevice(PointerKind.Pen);
+
             // Select the Brushes toolbox to have the Brushes Pane sidebar displayed and ensure that Marker is selected
             session.FindElementByAccessibilityId("Toolbox").FindElementByAccessibilityId("TopBar_ArtTools").Click();
-            session.FindElementByAccessibilityId("SidebarWrapper").FindElementByAccessibilityId("Marker3d").Click();
+            session.FindElementByAccessibilityId("SidebarWrapper").FindElementByAccessibilityId("PixelPencil3d").Click();
 
             // Locate the drawing surface
             WindowsElement inkCanvas = session.FindElementByAccessibilityId("InteractorFocusWrapper");
 
-            TimeSpan howFast = TimeSpan.FromMilliseconds(300.0);
-            OpenQA.Selenium.Appium.Interactions.PointerInputDevice penDevice = new OpenQA.Selenium.Appium.Interactions.PointerInputDevice(PointerKind.Pen);
+            Point canvasCoordinate = inkCanvas.Coordinates.LocationInViewport;
+            Size squareSize = new Size(inkCanvas.Size.Width * 3 / 5, inkCanvas.Size.Height * 3 / 5);
+            Point A = new Point(canvasCoordinate.X + inkCanvas.Size.Width / 5, canvasCoordinate.Y + inkCanvas.Size.Height / 5);
+            TimeSpan howFast = TimeSpan.FromMilliseconds(500.0);
+
             ActionSequence sequence = new ActionSequence(penDevice, 0);
 
-            var halfWidth = inkCanvas.Size.Width / 2;
-            var halfHeight = inkCanvas.Size.Height / 2;
+            var halfWidth = (inkCanvas.Size.Width / 2)+100;
+            var halfHeight = (inkCanvas.Size.Height / 2)+500;
 
             // left base 
             sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth, halfHeight, TimeSpan.Zero));
             sequence.AddAction(penDevice.CreatePointerDown(PointerButton.TouchContact));
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth - 500, halfHeight, howFast));
+            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth - 1000, halfHeight, howFast));
             sequence.AddAction(penDevice.CreatePointerUp(PointerButton.PenContact));
 
             // right base 
             sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth, halfHeight, TimeSpan.Zero));
             sequence.AddAction(penDevice.CreatePointerDown(PointerButton.TouchContact));
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth + 500, halfHeight, howFast));
-            sequence.AddAction(penDevice.CreatePointerUp(PointerButton.PenContact));
-
-            // left top 
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth - 500, halfHeight, TimeSpan.Zero));
-            sequence.AddAction(penDevice.CreatePointerDown(PointerButton.TouchContact));
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth, halfHeight - 500, howFast));
-            sequence.AddAction(penDevice.CreatePointerUp(PointerButton.PenContact));
+            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth + 1000, halfHeight, howFast));
+            //sequence.AddAction(penDevice.CreatePointerUp(PointerButton.PenContact));
 
             // right top 
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth + 500, halfHeight, TimeSpan.Zero));
-            sequence.AddAction(penDevice.CreatePointerDown(PointerButton.TouchContact));
-            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth, halfHeight - 500, howFast));
-            sequence.AddAction(penDevice.CreatePointerUp(PointerButton.PenContact));
+            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth + 1000, halfHeight, TimeSpan.Zero));
+            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth, halfHeight - 1000, howFast));
+
+            // left top 
+            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth, halfHeight - 1000, TimeSpan.Zero));
+            sequence.AddAction(penDevice.CreatePointerMove(CoordinateOrigin.Viewport, halfWidth - 1000, halfHeight, howFast));
+
 
             session.PerformActions(new List<ActionSequence> { sequence });
+        }
+
+        public static void SelectTriangle(WindowsDriver<WindowsElement> session)
+        {
+            OpenQA.Selenium.Appium.Interactions.PointerInputDevice penDevice = new OpenQA.Selenium.Appium.Interactions.PointerInputDevice(PointerKind.Pen);
+
+            // Select the Brushes toolbox to have the Brushes Pane sidebar displayed and ensure that Marker is selected
+            session.FindElementByAccessibilityId("Toolbox").FindElementByAccessibilityId("TopBar_2DShapes").Click();
+            session.FindElementByAccessibilityId("SidebarWrapper").FindElementByAccessibilityId("Sticker_RightTriangle").Click();
+
+            // Locate the drawing surface
+            WindowsElement inkCanvas = session.FindElementByAccessibilityId("InteractorFocusWrapper");
+            inkCanvas.Click();
+
+            // Change color of triangle
+            session.FindElementByAccessibilityId("ShapeOutline").FindElementByAccessibilityId("ColorPickerCheckBox").Click();
+            session.FindElementByAccessibilityId("#3f48cc").Click();
+            
+            // Change brush size
+            session.FindElementByAccessibilityId("BrushSize").SendKeys("5");
+            session.FindElementByAccessibilityId("BrushSize").SendKeys(Keys.Enter);
+
+            inkCanvas.Click();
+
+
         }
 
         public static void DrawCircle(WindowsDriver<WindowsElement> session)
@@ -90,6 +117,10 @@ namespace SpecFlowComputerVision.Framework
         public static void DrawRectangle(WindowsDriver<WindowsElement> session)
         {
             OpenQA.Selenium.Appium.Interactions.PointerInputDevice penDevice = new OpenQA.Selenium.Appium.Interactions.PointerInputDevice(PointerKind.Pen);
+
+            // Select the Brushes toolbox to have the Brushes Pane sidebar displayed and ensure that Marker is selected
+            session.FindElementByAccessibilityId("Toolbox").FindElementByAccessibilityId("TopBar_ArtTools").Click();
+            session.FindElementByAccessibilityId("SidebarWrapper").FindElementByAccessibilityId("PixelPencil3d").Click();
 
             // Locate the drawing surface
             WindowsElement inkCanvas = session.FindElementByAccessibilityId("InteractorFocusWrapper");

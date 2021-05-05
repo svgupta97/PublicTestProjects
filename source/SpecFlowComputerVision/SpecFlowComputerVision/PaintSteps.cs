@@ -39,10 +39,10 @@ namespace SpecFlowComputerVision
             paintPomBase.DrawRectangle();
         }
 
-        [Given(@"I draw a traingle")]
-        public void GivenIDrawATraingle()
+        [Given(@"I select a traingle")]
+        public void GivenISelectATraingle()
         {
-            paintPomBase.DrawTriangle();
+            paintPomBase.SelectTriangle();
         }
 
         [Then(@"image with (.*) sides is found")]

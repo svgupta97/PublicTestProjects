@@ -23,17 +23,11 @@ namespace SpecFlowComputerVision.Framework
 
             using (Mat srcColor = image.ToMat())
             using (Mat mOutput = new Mat(srcColor.Rows, srcColor.Cols, MatType.CV_8UC4))
-            using (var grey = srcColor.CvtColor(ColorConversionCodes.BGRA2GRAY)) //ColorConversionCodes.BGRA2GRAY
-            using (var blueMask = srcColor.InRange(new Scalar(255, 179, 0), new Scalar(255, 179, 0)))
-            using (var greenMask = srcColor.InRange(new Scalar(71, 242, 0), new Scalar(71, 242, 0)))
-            using (var orangeMask = srcColor.InRange(new Scalar(30, 147, 247), new Scalar(30, 147, 247)))
-            using (var yellowMask = srcColor.InRange(new Scalar(0, 221, 237), new Scalar(0, 221, 237)))
+            using (var grey = srcColor.CvtColor(ColorConversionCodes.BGRA2GRAY))
+            using (var blueMask = srcColor.InRange(new Scalar(204, 72, 63), new Scalar(204, 72, 63)))
             {
                 //TODO:This may need to be refactored not sure if objects that need to be disposed are missing
                 var src = grey.SetTo(new Scalar(0, 0, 0), blueMask);
-                src = src.SetTo(new Scalar(0, 0, 0), greenMask);
-                src = src.SetTo(new Scalar(0, 0, 0), orangeMask);
-                src = src.SetTo(new Scalar(0, 0, 0), yellowMask);
                 int maximumTargetWidth = (int)Math.Round(srcColor.Width * .9, 0);
                 int overAllImageArcLength = src.Width * 2 + src.Height * 2;
                 if (debugMode) Console.WriteLine($"overAllImageArcLength {overAllImageArcLength}");
@@ -52,7 +46,7 @@ namespace SpecFlowComputerVision.Framework
                     var approx = Cv2.ApproxPolyDP(mat, distance, closed);
                     double sidesLength = Cv2.ArcLength(approx, closed);
 
-                    if (sidesLength > 1.0)// && outputArray[i].Parent==0)
+                    if (sidesLength > 1.0 && outputArray[i].Child == -1)
                     {
                         if (debugMode)
                         {
@@ -63,7 +57,7 @@ namespace SpecFlowComputerVision.Framework
                         Scalar scalar = new Scalar();
                         scalar = Scalar.Red;
                         Rect rect = Cv2.BoundingRect(mat);
-                        if (mat.Length == sides && rect.Width < maximumTargetWidth)
+                        if (mat.Length == sides && rect.Width <= maximumTargetWidth)
                         {
 
 
