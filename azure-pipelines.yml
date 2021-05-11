@@ -16,7 +16,9 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-
+- checkout: self
+  persistCredentials: true
+  
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(build.artifactstagingdirectory)/jmeter'
   inputs:
