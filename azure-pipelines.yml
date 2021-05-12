@@ -16,15 +16,8 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- powershell: |
-    $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/build/definitions/$($env:SYSTEM_DEFINITIONID)?api-version=4.1-preview"
-    Write-Host "URL: $url"
-    $pipeline = Invoke-RestMethod -Uri $url -Headers @{
-      Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"
-    }
-    Write-Host "Pipeline = $($pipeline | ConvertTo-Json -Depth 100)"
-  env:
-    SYSTEM_ACCESSTOKEN: $(system.accesstoken)
+- checkout: self
+  persistCredentials: true
   
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(build.artifactstagingdirectory)/jmeter'
